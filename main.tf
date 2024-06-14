@@ -41,6 +41,30 @@ resource "aws_ecr_repository" "repo" {
   }
 }
 
-output "ecr_repo_url" {
-  value = aws_ecr_repository.example_ecr_repo.repository_url
+output "s3_bucket_name" {
+  value = aws_s3_bucket.bucket.bucket
+}
+
+output "rds_endpoint" {
+  value = aws_db_instance.myrds.endpoint
+}
+
+output "rds_db_name" {
+  value = aws_db_instance.myrds.db_name
+}
+
+output "rds_username" {
+  value = aws_db_instance.myrds.username
+}
+
+output "rds_password" {
+  value = aws_db_instance.myrds.password
+}
+
+output "ecr_repository_url" {
+  value = aws_ecr_repository.repo.repository_url
+}
+
+variable "dbstorage" {
+  default = 20
 }
