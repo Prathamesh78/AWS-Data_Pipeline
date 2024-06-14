@@ -1,3 +1,5 @@
-rds_db_name     = "yourdbname"
-rds_username    = "yourusername"
-rds_password    = "yourpassword"
+aws_access_key_id     = "AKIA47CRXETV7L3P3KOE"
+aws_secret_access_key = "4RG8KhgFk4sWno4cwhTezFGzuAHmjR8Ok/Gy2h3g"
+rds_db_name     = "pratham_rds"
+rds_username    = "prathamesh"
+rds_password    = "12345678"
