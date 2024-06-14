@@ -3,13 +3,6 @@ pipeline {
 
   
     stages {
-	    stage('Clean Workspace') {
-            steps {
-                // Clean the workspace
-                cleanWs()
-            }
-        }
-      
       stage('Clone Repository') {
             steps {
                 // Clone your GitHub repository
