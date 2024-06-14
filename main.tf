@@ -21,8 +21,8 @@ resource "aws_db_instance" "myrds" {
    storage_type        = "gp2"
    identifier          = "rdstf"
    engine              = "mysql"
-   engine_version      = "8.0.27"
-   instance_class      = "db.t2.micro"
+   engine_version      = "8.0.35"
+   instance_class      = "db.t3.micro"
    username            = "admin"
    password            = "Passw0rd!7810"
    publicly_accessible = true
@@ -59,6 +59,7 @@ output "rds_username" {
 
 output "rds_password" {
   value = aws_db_instance.myrds.password
+  sensitive = true
 }
 
 output "ecr_repository_url" {
