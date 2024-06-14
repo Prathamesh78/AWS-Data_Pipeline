@@ -1,7 +1,13 @@
 pipeline {
     agent any
 
-  
+  environment {
+        AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        RDS_DB_NAME = credentials('rds_db_name')
+        RDS_USERNAME = credentials('rds_username')
+        RDS_PASSWORD = credentials('rds_password')
+    }
     stages {
        stage('Clean Workspace') {
             steps {
