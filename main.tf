@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "bucket"{
   }
 }
 
-resource = "aws_s3_bucket_object" "file" {
+resource "aws_s3_bucket_object" "file" {
   bucket = aws_s3_bucket.bucket.id
   key = "myfile.txt"
   source = "myfile.txt"
