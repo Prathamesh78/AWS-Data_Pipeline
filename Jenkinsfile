@@ -15,7 +15,7 @@ pipeline {
                  script{
                         dir("terraform")
                         {
-                            git "https://github.com/Prathamesh78/AWS-Data_Pipeline.git"
+                            git branch: 'main', url: "https://github.com/Prathamesh78/AWS-Data_Pipeline.git"
                         }
                     }
                 }
