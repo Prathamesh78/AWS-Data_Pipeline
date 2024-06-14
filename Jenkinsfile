@@ -1,46 +1,54 @@
 pipeline {
-    agent any
 
-  environment {
-        AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-        RDS_DB_NAME = credentials('rds_db_name')
-        RDS_USERNAME = credentials('rds_username')
-        RDS_PASSWORD = credentials('rds_password')
+    parameters {
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+    } 
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
+
+   agent  any
     stages {
-       stage('Clean Workspace') {
+        stage('checkout') {
             steps {
-                // Clean the workspace
-                cleanWs()
-            }
-        } 
-      stage('Clone Repository') {
-            steps {
-                // Clone your GitHub repository
-                git branch: 'main', url: 'https://github.com/Prathamesh78/AWS-Data_Pipeline.git'
-            }
-        }
-      stage('Terraform Init') {
-            steps {
-                dir('terraform') {
-                    sh 'terraform init'
+                 script{
+                        dir("terraform")
+                        {
+                            git "https://github.com/Prathamesh78/AWS-Data_Pipeline.git"
+                        }
+                    }
                 }
             }
-        }
-      stage('Terraform Apply All Resources') {
+
+        stage('Plan') {
             steps {
-                dir('terraform') {
-                    sh '''
-                    terraform apply -auto-approve \
-                        -var="aws_access_key_id=${AWS_ACCESS_KEY_ID}" \
-                        -var="aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}" \
-                        -var="rds_db_name=${RDS_DB_NAME}" \
-                        -var="rds_username=${RDS_USERNAME}" \
-                        -var="rds_password=${RDS_PASSWORD}"
-                    '''
-                }
+                sh 'pwd;cd terraform/ ; terraform init'
+                sh "pwd;cd terraform/ ; terraform plan -out tfplan"
+                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+            }
+        }
+        stage('Approval') {
+           when {
+               not {
+                   equals expected: true, actual: params.autoApprove
+               }
+           }
+
+           steps {
+               script {
+                    def plan = readFile 'terraform/tfplan.txt'
+                    input message: "Do you want to apply the plan?",
+                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+               }
+           }
+       }
+
+        stage('Apply') {
+            steps {
+                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
             }
         }
     }
-}
+
+  }
