@@ -2,18 +2,26 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCOUNT_ID     = credentials('AWS_ACCOUNT_ID')
-        AWS_DEFAULT_REGION = credentials('AWS_DEFAULT_REGION')
-        ECR_REPO_NAME      = credentials('ECR_REPO_NAME')
-        IMAGE_TAG          = credentials('IMAGE_TAG')
-        REPOSITORY_URL     = '$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME'
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_ACCOUNT_ID     = 891377100011
+        AWS_DEFAULT_REGION = us-east-1
+        ECR_REPO_NAME      = s3-to-rds
+        IMAGE_TAG          = latest
+        REPOSITORY_URL     = '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPO_NAME}'
     }
 
     stages {
         stage('Logging into AWS ECR') {
             steps {
                 script {
-                    sh 'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com'                  
+                    withCredentials([usernamePassword(credentialsId: 'aws-access-key-id', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh '''
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL
+                        '''
+                    }
                 }
             }
         }
@@ -29,7 +37,7 @@ pipeline {
         stage('Building Images') {
             steps {
                 script {
-                    dockerImage = docker.build $ECR_REPO_NAME:$IMAGE_TAG
+                    dockerImage = docker.build("${ECR_REPO_NAME}:${IMAGE_TAG}")
                 }
             }
         }
@@ -37,8 +45,8 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    sh 'docker tag $ECR_REPO_NAME:$IMAGE_TAG $REPOSITORY_URL:$IMAGE_TAG'
-                    sh 'docker push $AWS_ACOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG'
+                    sh "docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URL}:${IMAGE_TAG}"
+                    sh "docker push ${REPOSITORY_URL}:${IMAGE_TAG}"
                 }
             }
         }
