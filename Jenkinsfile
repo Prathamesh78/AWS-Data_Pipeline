@@ -103,18 +103,6 @@ pipeline {
             }
         }
 
-        stage('Approval') {
-            steps {
-                script {
-                    def userInput = input message: 'Proceed with connecting to RDS',
-                                         parameters: [choice(name: 'Proceed', choices: ['Yes', 'No'], description: 'Select Yes to proceed or No to abort')]
-                    if (userInput == 'No') {
-                        error 'Pipeline aborted by user'
-                    }
-                }
-            }
-        }
-
         stage('Create Database') {
             steps {
                 script {
