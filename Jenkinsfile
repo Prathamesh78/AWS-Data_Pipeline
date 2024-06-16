@@ -13,6 +13,9 @@ pipeline {
         ECR_REPO_NAME         = "s3-to-rds"
         IMAGE_TAG             = "latest"
         REPOSITORY_URL        = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPO_NAME}"
+        DB_USER               = "admin"  
+        DB_PASSWORD           = "Passw0rd!7810"
+        DB_NAME               = "mydatabase"
     }
 
     stages {
@@ -65,6 +68,16 @@ pipeline {
             }
         }
 
+        stage('Fetch DB Host') {
+            steps {
+                script {
+                    def rdsEndpoint = sh(script: 'terraform output -raw rds_endpoint', returnStdout: true).trim()
+                    env.DB_HOST = rdsEndpoint
+                    echo "DB_HOST: ${env.DB_HOST}"
+                }
+            }
+        }
+
         stage('Logging into AWS ECR') {
             steps {
                 script {
@@ -90,7 +103,44 @@ pipeline {
             }
         }
     }
+        stage('Approval') {
+            steps {
+                script {
+                    def userInput = input message: 'Proceed with connecting to RDS',
+                                         parameters: [choice(name: 'Proceed', choices: ['Yes', 'No'], description: 'Select Yes to proceed or No to abort')]
+                    if (userInput == 'No') {
+                        error 'Pipeline aborted by user'
+                    }
+                }
+            }
+        }
 
+        stage('Create Database') {
+            steps {
+                script {
+                    sh """
+                    mysql -h ${env.DB_HOST} -u ${DB_USER_USR} -p${DB_USER_PSW} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
+                    """
+                }
+            }
+        }
+
+        stage('Create Table') {
+            steps {
+                script {
+                    sh """
+                    mysql -h ${env.DB_HOST} -u ${DB_USER_USR} -p${DB_USER_PSW} ${DB_NAME} -e "
+                    CREATE TABLE IF NOT EXISTS customers (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        city VARCHAR(255),
+                        country VARCHAR(255)
+                    );
+                    "
+                    """
+                }
+            }
+        }
+    
     post {
         always {
             cleanWs()
