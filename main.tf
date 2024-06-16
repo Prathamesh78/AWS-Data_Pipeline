@@ -12,8 +12,8 @@ resource "aws_s3_bucket" "bucket"{
 
 resource "aws_s3_object" "file" {
   bucket = aws_s3_bucket.bucket.id
-  key = "myfile.txt"
-  source = "/terraform/myfile.txt"
+  key = "customers.csv"
+  source = "customers.csv"
 }
 
 resource "aws_db_instance" "myrds" {
