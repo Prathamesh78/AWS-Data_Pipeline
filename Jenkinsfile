@@ -102,8 +102,8 @@ pipeline {
                 }
             }
         }
-    }
-        stage('Approve?') {
+
+        stage('Approval') {
             steps {
                 script {
                     def userInput = input message: 'Proceed with connecting to RDS',
@@ -119,7 +119,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    mysql -h ${env.DB_HOST} -u ${DB_USER_USR} -p${DB_USER_PSW} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
+                    mysql -h ${env.DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
                     """
                 }
             }
@@ -129,7 +129,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    mysql -h ${env.DB_HOST} -u ${DB_USER_USR} -p${DB_USER_PSW} ${DB_NAME} -e "
+                    mysql -h ${env.DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e "
                     CREATE TABLE IF NOT EXISTS customers (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         city VARCHAR(255),
@@ -140,7 +140,8 @@ pipeline {
                 }
             }
         }
-    
+    }
+
     post {
         always {
             cleanWs()
