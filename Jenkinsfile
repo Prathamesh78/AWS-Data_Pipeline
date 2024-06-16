@@ -107,7 +107,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    mysql -h ${env.DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
+                    mysql -h ${env.DB_HOST} -P 3306 -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
                     """
                 }
             }
@@ -117,7 +117,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    mysql -h ${env.DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e "
+                    mysql -h ${env.DB_HOST} -P 3306 -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e "
                     CREATE TABLE IF NOT EXISTS customers (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         city VARCHAR(255),
