@@ -18,8 +18,8 @@ def s3_to_df():
     }
     # Read csv file from S3
     data_df = pd.read_csv(s3_uri,
-                    aws_access_key_id=aws_access_key_id,
-                    aws_secret_access_key=aws_secret_access_key)
+                    storage_options=aws_credentials
+                    )
     return data_df
 
 
