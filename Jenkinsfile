@@ -129,7 +129,6 @@ pipeline {
                 }
             }
         }
-    }
 
         stage('Create Lambda Function') {
             steps {
@@ -160,7 +159,7 @@ pipeline {
                 }
             }
         }
-
+    }
     post {
         always {
             cleanWs()
