@@ -72,7 +72,6 @@ pipeline {
                     }
                 }
             }
-        }
 
         stage('Building Images') {
             steps {
