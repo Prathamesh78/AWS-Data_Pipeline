@@ -68,10 +68,10 @@ pipeline {
         stage('Logging into AWS ECR') {
             steps {
                 script {
-                        sh 'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL'
-                    }
+                    sh 'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL'
                 }
             }
+        }
 
         stage('Building Images') {
             steps {
@@ -89,6 +89,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         always {
@@ -101,6 +102,4 @@ pipeline {
             echo 'Pipeline failed!'
         }
     }
-}
-
 }
