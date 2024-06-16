@@ -57,7 +57,7 @@ pipeline {
                     sh 'terraform apply -input=false tfplan'
             }
         }
-    }
+        
         stage('Logging into AWS ECR') {
             steps {
                 script {
