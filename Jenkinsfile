@@ -131,6 +131,36 @@ pipeline {
         }
     }
 
+        stage('Create Lambda Function') {
+            steps {
+                script {
+                    sh """
+                    aws lambda create-function \
+                        --function-name s3-rds-function \
+                        --package-type Image \
+                        --code ImageUri=${REPOSITORY_URL}:${IMAGE_TAG} \
+                        --role arn:aws:iam::891377100011:role/lambda_exec_role \
+                        --region ${AWS_DEFAULT_REGION}
+                    """
+                }
+            }
+        }
+
+            stage('Test Lambda Function') {
+            steps {
+                script {
+                    sh """
+                    aws lambda invoke \
+                        --function-name s3-rds-function \
+                        --payload '{}' \
+                        output.json
+                    """
+                    def output = readFile 'output.json'
+                    echo "Lambda output: ${output}"
+                }
+            }
+        }
+
     post {
         always {
             cleanWs()
