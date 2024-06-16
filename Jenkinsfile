@@ -103,7 +103,7 @@ pipeline {
             }
         }
     }
-        stage('Approval') {
+        stage('Approve?') {
             steps {
                 script {
                     def userInput = input message: 'Proceed with connecting to RDS',
