@@ -72,7 +72,8 @@ pipeline {
             steps {
                 script {
                     def rdsEndpoint = sh(script: 'terraform output -raw rds_endpoint', returnStdout: true).trim()
-                    env.DB_HOST = rdsEndpoint
+                    def rdsHost = rdsEndpoint.split(':')[0]
+                    env.DB_HOST = rdsHost
                     echo "DB_HOST: ${env.DB_HOST}"
                 }
             }
@@ -107,7 +108,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    mysql -h ${env.DB_HOST} -P 3306 -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
+                    mysql -h ${env.DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
                     """
                 }
             }
@@ -117,7 +118,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    mysql -h ${env.DB_HOST} -P 3306 -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e "
+                    mysql -h ${env.DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e "
                     CREATE TABLE IF NOT EXISTS customers (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         city VARCHAR(255),
